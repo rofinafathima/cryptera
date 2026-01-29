@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Autoscribe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="student-styles.css">
+    <link rel="stylesheet" href="mock-exam.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h1>Autoscribe Student Portal</h1>
+                </div>
+                <div class="user-info">
+                    <span id="student-name">Welcome, Student</span>
+                    <div class="accessibility-controls">
+                        <button class="accessibility-btn" onclick="toggleVoiceMode()" title="Toggle Voice Mode">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button class="accessibility-btn" onclick="adjustFontSize('increase')"
+                            title="Increase Font Size">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="accessibility-btn" onclick="adjustFontSize('decrease')"
+                            title="Decrease Font Size">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button class="accessibility-btn" onclick="toggleHighContrast()" title="High Contrast">
+                            <i class="fas fa-adjust"></i>
+                        </button>
+                        <button class="logout-btn" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Automated Voice Status Bar -->
+        <div id="voicePremiumBar" class="voice-status-bar off">
+            <i class="fas fa-microphone-slash"></i>
+            <span id="voiceStatusText">Automated Voice Flow: Inactive</span>
+            <button id="enableVoicePremiumBtn" class="accessibility-btn">
+                Enable Voice
+            </button>
+        </div>
+
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="content-section active">
+                <h2>Your Dashboard</h2>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card current-exams">
+                        <div class="card-header">
+                            <h3><i class="fas fa-clock"></i> Current Exams</h3>
+                        </div>
+                        <div class="card-content" id="current-exams-list">
+                            <div class="no-exams" id="no-current-exams">
+                                <i class="fas fa-clock"></i>
+                                <p>No exams in progress</p>
+                            </div>
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card upcoming-exams">
+                        <div class="card-header">
+                            <h3><i class="fas fa-calendar-alt"></i> Upcoming Exams</h3>
+                        </div>
+                        <div class="card-content" id="upcoming-exams-list">
+                            <div class="no-exams" id="no-upcoming-exams">
+                                <i class="far fa-calendar"></i>
+                                <p>No upcoming exams</p>
+                            </div>
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card completed-exams">
+                        <div class="card-header">
+                            <h3><i class="fas fa-check-circle"></i> Completed Exams</h3>
+                        </div>
+                        <div class="card-content" id="completed-exams-list">
+                            <div class="no-exams" id="no-completed-exams">
+                                <i class="far fa-check-circle"></i>
+                                <p>No completed exams yet</p>
+                            </div>
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card mock-exam-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-graduation-cap"></i> Practice Mock Exam</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="mock-exam-info">
+                                <p><i class="fas fa-microphone"></i> <strong>Voice-Enabled Exam</strong></p>
+                                <p><i class="fas fa-volume-up"></i> Questions read aloud</p>
+                                <p><i class="fas fa-question-circle"></i> 5 Questions (10 marks)</p>
+                                <p><i class="fas fa-clock"></i> 10 Minutes</p>
+                                <p><i class="fas fa-star"></i> Perfect for practice!</p>
+                            </div>
+                            <button class="action-btn mock-exam-btn" onclick="startMockExam()">
+                                <i class="fas fa-play-circle"></i> Start Mock Exam
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card quick-actions">
+                        <div class="card-header">
+                            <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                        </div>
+                        <div class="card-content">
+                            <button class="action-btn" onclick="testMicrophone()">
+                                <i class="fas fa-microphone"></i> Test Microphone
+                            </button>
+                            <button class="action-btn" onclick="refreshExams()">
+                                <i class="fas fa-sync-alt"></i> Refresh Exams
+                            </button>
+                            <button class="action-btn" onclick="changeLanguage()">
+                                <i class="fas fa-language"></i> Change Language
+                            </button>
+                            <button class="action-btn" onclick="showHelp()">
+                                <i class="fas fa-question-circle"></i> Voice Commands Help
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Exam Section -->
+            <section id="exam-section" class="content-section">
+                <div class="exam-header">
+                    <div class="exam-title-container">
+                        <h2 id="examTitle">Exam in Progress</h2>
+                        <div class="exam-meta">
+                            <span class="exam-subject" id="examSubject"></span>
+                            <span class="exam-duration" id="examDuration"></span>
+                        </div>
+                    </div>
+                    <div class="exam-timer-container">
+                        <div class="timer" id="examTimerDisplay">
+                            <i class="fas fa-clock"></i>
+                            <span>00:00:00</span>
+                        </div>
+                        <div class="question-navigation">
+                            <span id="currentQuestion">1</span> of <span id="totalQuestions">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="exam-progress-container">
+                    <div class="progress"
+                        style="height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 10px;">
+                        <div class="progress-bar" id="examProgress" role="progressbar"
+                            style="width: 0%; height: 100%; background: #7c3aed; transition: width 0.4s ease;"></div>
+                    </div>
+                </div>
+
+                <div class="exam-content">
+                    <div class="question-container">
+                        <div class="question-header">
+                            <h3>Question <span id="questionNumber">1</span></h3>
+                            <div class="question-marks">
+                                <span id="questionMarks">0</span> marks
+                            </div>
+                        </div>
+                        <div class="question-text" id="questionText"></div>
+
+                        <div class="options-container" id="optionsContainer" style="display: none;">
+                            <!-- Options will be inserted here by JavaScript -->
+                        </div>
+
+                        <!-- Task 1: Sentence Box for Descriptive answers -->
+                        <div id="sentenceBoxContainer" class="sentence-box-container"
+                            style="display: none; margin-top: 1.5rem;">
+                            <div id="sentenceBox" class="sentence-box">
+                                ... listening ...
+                            </div>
+                            <div class="live-indicator"
+                                style="display: none; align-items: center; gap: 8px; color: #ef4444; margin-top: 10px; font-weight: 600;">
+                                <i class="fas fa-circle" style="font-size: 0.7rem; animation: blink 1s infinite;"></i>
+                                Live Capturing Answer
+                            </div>
+                        </div>
+
+                        <div class="voice-command-hint"
+                            style="margin-top: 1.5rem; background: #eff6ff; padding: 12px; border-radius: 10px; border-left: 4px solid #3b82f6;">
+                            <i class="fas fa-microphone" style="color: #3b82f6;"></i>
+                            <span style="color: #1e40af;">Try saying: <strong>"Select option A"</strong> or
+                                <strong>"Next question"</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="exam-controls">
+                        <div class="nav-buttons"
+                            style="display: flex; gap: 1rem; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; gap: 1rem;">
+                                <button class="btn btn-outline" id="prevBtn" disabled>
+                                    <i class="fas fa-arrow-left"></i> Previous
+                                </button>
+                                <button class="btn btn-outline" id="review-btn">
+                                    <i class="far fa-flag"></i> Mark for Review
+                                </button>
+                            </div>
+                            <button class="btn btn-primary" id="nextBtn" style="background: #4f46e5;">
+                                Next <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                        <!-- Hidden for script trigger -->
+                        <button id="autoVoiceBtn" style="display: none;"></button>
+                        <button id="submitExamBtn" class="btn btn-danger"
+                            style="display: none; margin-top: 2rem; width: 100%;">Submit Exam</button>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Mock Exam Interface (initially hidden) -->
+            <div id="mock-exam-interface" class="content-section" style="display: none;">
+                <div class="card">
+                    <div class="exam-header">
+                        <h2 id="mock-exam-title">Mock Exam</h2>
+                        <div class="exam-timer" id="mock-exam-timer">10:00</div>
+                    </div>
+
+                    <div class="question-container">
+                        <div class="question-header">
+                            <span class="question-number">Question <span id="mock-current-q">1</span>/<span
+                                    id="mock-total-questions">5</span></span>
+                            <span class="question-marks">(2 marks)</span>
+                        </div>
+                        <p class="question-text" id="mock-question-text">Loading question...</p>
+
+                        <div class="options-container" id="mock-options-container">
+                            <!-- Options will be populated by JavaScript -->
+                        </div>
+
+                        <div class="voice-input-section">
+                            <button class="voice-btn" id="mock-voice-btn">
+                                <i class="fas fa-microphone"></i> Speak Answer
+                            </button>
+                            <div class="voice-status" id="mock-voice-status">
+                                <i class="fas fa-circle"></i> Ready
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="exam-navigation">
+                        <button class="btn btn-secondary" id="mock-prev-btn" onclick="previousQuestion()">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </button>
+                        <div class="question-progress">
+                            <span id="mock-current-position">1</span> of <span
+                                id="mock-total-questions-display">5</span>
+                        </div>
+                        <button class="btn btn-primary" id="mock-next-btn" onclick="nextQuestion()">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="exam-actions">
+                        <button class="btn btn-danger" onclick="endMockExam()">
+                            <i class="fas fa-flag"></i> End Exam
+                        </button>
+                        <button class="btn btn-success" id="mock-submit-exam-btn" onclick="submitMockExam()">
+                            <i class="fas fa-check-circle"></i> Submit Exam
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Section -->
+            <section id="exam-section-instructions" class="content-section">
+                <div class="card">
+                    <div class="exam-instructions">
+                        <h4>Voice Commands Available:</h4>
+                        <ul>
+                            <li>Say "Start Exam" to begin</li>
+                            <li>Say "Next Question" to move forward</li>
+                            <li>Say "Previous Question" to go back</li>
+                            <li>Say "Read Question" to hear the question again</li>
+                            <li>Say "Answer A", "Answer B", etc. to select options</li>
+                            <li>Say "Pause" to pause the exam</li>
+                            <li>Say "Submit" to submit your exam</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Microphone Test Section -->
+            <section id="microphone-test-section" class="content-section">
+                <h2>Microphone Test</h2>
+                <div class="test-container">
+                    <div class="test-instructions">
+                        <h3>Let's test your microphone</h3>
+                        <p>This test ensures your voice will be clearly heard during the exam.</p>
+                    </div>
+
+                    <div class="test-content">
+                        <div class="test-step" id="test-step-1">
+                            <h4>Step 1: Say "Hello"</h4>
+                            <p>Please say "Hello" clearly into your microphone.</p>
+                            <button class="test-btn" onclick="startMicrophoneTest()">
+                                <i class="fas fa-microphone"></i> Start Test
+                            </button>
+                        </div>
+
+                        <div class="test-step hidden" id="test-step-2">
+                            <h4>Step 2: Say "Testing"</h4>
+                            <p>Now say "Testing" to complete the microphone test.</p>
+                            <button class="test-btn" onclick="continueMicrophoneTest()">
+                                <i class="fas fa-microphone"></i> Continue Test
+                            </button>
+                        </div>
+
+                        <div class="test-result hidden" id="test-result">
+                            <div class="result-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h4>Microphone Test Complete!</h4>
+                            <p>Your microphone is working properly. You're ready for voice-based exams.</p>
+                            <button class="test-btn" onclick="closeMicrophoneTest()">
+                                <i class="fas fa-check"></i> Continue
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Language Selection Section -->
+            <section id="language-section" class="content-section">
+                <h2>Language Selection</h2>
+                <div class="language-container">
+                    <div class="language-options">
+                        <div class="language-card" onclick="selectLanguage('en')">
+                            <div class="language-flag">🇺🇸</div>
+                            <h3>English</h3>
+                            <p>English language support</p>
+                        </div>
+                        <div class="language-card" onclick="selectLanguage('hi')">
+                            <div class="language-flag">🇮🇳</div>
+                            <h3>हिन्दी</h3>
+                            <p>हिन्दी भाषा समर्थन</p>
+                        </div>
+                        <div class="language-card" onclick="selectLanguage('ta')">
+                            <div class="language-flag">🇮🇳</div>
+                            <h3>தமிழ்</h3>
+                            <p>தமிழ் மொழி ஆதரவு</p>
+                        </div>
+                    </div>
+                    <div class="language-info">
+                        <h3>Current Language: <span id="current-language-display">English</span></h3>
+                        <p>Voice commands will work in your selected language.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Help Section -->
+            <section id="help-section" class="content-section">
+                <h2>Voice Commands Help</h2>
+                <div class="help-container">
+                    <div class="help-section">
+                        <h3>Navigation Commands</h3>
+                        <ul>
+                            <li><strong>"Start Exam"</strong> - Begin the current exam</li>
+                            <li><strong>"Next Question"</strong> - Move to the next question</li>
+                            <li><strong>"Previous Question"</strong> - Go back to the previous question</li>
+                            <li><strong>"Go to Question [number]"</strong> - Jump to a specific question</li>
+                        </ul>
+                    </div>
+
+                    <div class="help-section">
+                        <h3>Reading Commands</h3>
+                        <ul>
+                            <li><strong>"Read Question"</strong> - Hear the current question again</li>
+                            <li><strong>"Read Options"</strong> - Hear all answer options</li>
+                            <li><strong>"Read Instructions"</strong> - Hear exam instructions</li>
+                            <li><strong>"Repeat Answer"</strong> - Hear your selected answer</li>
+                        </ul>
+                    </div>
+
+                    <div class="help-section">
+                        <h3>Answer Commands</h3>
+                        <ul>
+                            <li><strong>"Answer A"</strong> - Select option A</li>
+                            <li><strong>"Answer B"</strong> - Select option B</li>
+                            <li><strong>"Answer C"</strong> - Select option C</li>
+                            <li><strong>"Answer D"</strong> - Select option D</li>
+                            <li><strong>"Skip Question"</strong> - Skip the current question</li>
+                        </ul>
+                    </div>
+
+                    <div class="help-section">
+                        <h3>Control Commands</h3>
+                        <ul>
+                            <li><strong>"Pause"</strong> - Pause the exam</li>
+                            <li><strong>"Resume"</strong> - Resume the exam</li>
+                            <li><strong>"Submit"</strong> - Submit your exam</li>
+                            <li><strong>"Help"</strong> - Hear available commands</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Auto-login script for direct access (bypasses login requirement) -->
+    <script>
+        // Create a fake student user in localStorage for testing
+        if (!localStorage.getItem('currentUser')) {
+            localStorage.setItem('currentUser', JSON.stringify({
+                id: 'STU001',
+                name: 'Test Student',
+                email: 'test@student.edu',
+                role: 'student',
+                class: 'Grade 10A'
+            }));
+            console.log('✅ Auto-logged in as Test Student for direct access');
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="exam-connector.js"></script>
+    <script src="script.js"></script>
+    <script src="student-script.js"></script>
+    <script src="multilingual-voice.js"></script>
+    <script src="enhanced-mock-exam.js"></script>
+    <script src="automated-flow.js"></script>
+    <script>
+        // Custom button for the premium bar in dashboard
+        document.getElementById('enableVoicePremiumBtn').addEventListener('click', function () {
+            const bar = document.getElementById('voicePremiumBar');
+            const icon = this.parentElement.querySelector('i');
+            const statusText = document.getElementById('voiceStatusText');
+
+            if (bar.classList.contains('off')) {
+                bar.classList.remove('off');
+                bar.classList.add('active');
+                statusText.textContent = 'Automated Voice Flow: Active';
+                this.textContent = 'Disable Voice';
+                icon.className = 'fas fa-microphone';
+
+                // Trigger flow from automated-flow.js
+                if (window.initFlow) window.initFlow();
+            } else {
+                bar.classList.add('off');
+                bar.classList.remove('active');
+                statusText.textContent = 'Automated Voice Flow: Inactive';
+                this.textContent = 'Enable Voice';
+                icon.className = 'fas fa-microphone-slash';
+
+                // Stop flow
+                if (window.stopListening) window.stopListening();
+            }
+        });
+    </script>
+</body>
+
+</html>

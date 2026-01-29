@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Mock Exam</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f9ff;
+        }
+        .test-button {
+            background: linear-gradient(135deg, #86efac 0%, #bbf7d0 100%);
+            color: #1f2937;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(134, 239, 172, 0.4);
+        }
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #86efac;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mock Exam Test Page</h1>
+    
+    <div>
+        <button class="test-button" onclick="testFunction()">Test if startMockExam exists</button>
+        <button class="test-button" onclick="callStartMockExam()">Call startMockExam()</button>
+    </div>
+    
+    <div id="status">
+        <h3>Status:</h3>
+        <p id="status-text">Click a button to test...</p>
+    </div>
+
+    <div id="dashboard-section" style="display: block; padding: 20px; background: white; margin-top: 20px; border-radius: 8px;">
+        <h2>Dashboard Section (will hide when exam starts)</h2>
+        <p>This simulates the dashboard.</p>
+    </div>
+
+    <div id="mock-exam-interface" style="display: none; padding: 20px; background: white; margin-top: 20px; border-radius: 8px;">
+        <h2 id="mock-exam-title">Mock Exam Interface</h2>
+        <div id="mock-exam-timer">10:00</div>
+        <p id="mock-question-text">Question will appear here</p>
+        <div id="mock-options-container"></div>
+        <button id="mock-voice-btn">Voice Button</button>
+        <button id="mock-prev-btn">Previous</button>
+        <button id="mock-next-btn">Next</button>
+        <div id="mock-current-q">1</div>
+        <div id="mock-total-questions">5</div>
+    </div>
+
+    <script src="enhanced-mock-exam.js"></script>
+    
+    <script>
+        function testFunction() {
+            const statusText = document.getElementById('status-text');
+            
+            if (typeof startMockExam === 'function') {
+                statusText.innerHTML = '✅ <strong>SUCCESS!</strong> startMockExam function exists and is accessible.';
+                statusText.style.color = 'green';
+            } else {
+                statusText.innerHTML = '❌ <strong>ERROR!</strong> startMockExam function not found. Type: ' + typeof startMockExam;
+                statusText.style.color = 'red';
+            }
+        }
+
+        function callStartMockExam() {
+            const statusText = document.getElementById('status-text');
+            
+            try {
+                statusText.innerHTML = '🔄 Calling startMockExam()...';
+                startMockExam();
+                statusText.innerHTML = '✅ <strong>SUCCESS!</strong> startMockExam() called successfully. Check if exam interface appeared above.';
+                statusText.style.color = 'green';
+            } catch (error) {
+                statusText.innerHTML = '❌ <strong>ERROR!</strong> ' + error.message;
+                statusText.style.color = 'red';
+                console.error('Error calling startMockExam:', error);
+            }
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', function() {
+            console.log('Page loaded. Testing startMockExam availability...');
+            console.log('typeof startMockExam:', typeof startMockExam);
+            console.log('window.startMockExam:', window.startMockExam);
+            
+            setTimeout(testFunction, 500);
+        });
+    </script>
+</body>
+</html>

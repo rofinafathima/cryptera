@@ -1,0 +1,224 @@
+/* Mock Exam Styles */
+.mock-exam-info {
+    text-align: center;
+    padding: 2rem;
+}
+
+.exam-details {
+    background-color: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    text-align: left;
+    color: #ffffff;
+}
+
+.exam-details p {
+    margin: 0.75rem 0;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+}
+
+.exam-details i {
+    margin-right: 10px;
+    color: #a855f7;
+    width: 20px;
+    text-align: center;
+}
+
+/* Exam Interface */
+#mock-exam-interface {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.exam-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.exam-timer {
+    background-color: #a855f7;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+}
+
+.question-container {
+    background-color: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(168, 85, 247, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #ffffff;
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.question-number {
+    font-weight: 600;
+    color: #a855f7;
+}
+
+.question-marks {
+    background-color: rgba(168, 85, 247, 0.2);
+    color: #d8b4fe;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.question-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    color: #ffffff;
+}
+
+.options-container {
+    margin: 1.5rem 0;
+}
+
+.option-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    background-color: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+}
+
+.option-btn:hover {
+    background-color: #f1f3f5;
+    border-color: #ced4da;
+}
+
+.option-btn.selected {
+    background-color: #edf2ff;
+    border-color: #4f46e5;
+    color: #4f46e5;
+    font-weight: 500;
+}
+
+.voice-input-section {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.voice-btn {
+    background: linear-gradient(45deg, #4f46e5, #7c3aed);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+}
+
+.voice-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+}
+
+.voice-btn i {
+    margin-right: 8px;
+}
+
+.voice-btn.listening {
+    background: linear-gradient(45deg, #ef4444, #f97316);
+    animation: pulse 1.5s infinite;
+}
+
+.voice-status {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.voice-status i {
+    margin-right: 6px;
+    font-size: 0.6rem;
+    color: #28a745;
+}
+
+.voice-status i.recording {
+    color: #ef4444;
+    animation: blink 1.5s infinite;
+}
+
+.exam-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 2rem 0;
+    padding: 1rem 0;
+    border-top: 1px solid #e9ecef;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.question-progress {
+    font-weight: 500;
+    color: #495057;
+}
+
+.exam-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .exam-actions {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .exam-actions .btn {
+        width: 100%;
+    }
+    
+    .exam-navigation {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}

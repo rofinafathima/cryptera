@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Exam - Autoscribe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="student-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Sentence Box Styles for Automated Flow */
+        .sentence-box-container {
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .sentence-box {
+            min-height: 150px;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #1f2937;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e0;
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .sentence-box.saved {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+            animation: successPulse 0.5s ease;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            color: #ef4444;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .live-indicator i {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes successPulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .voice-status-bar {
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .voice-status-bar.off {
+            background: #64748b;
+        }
+
+        .accessibility-btn {
+            background: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-left: 15px;
+            font-weight: 700;
+            transition: transform 0.2s;
+        }
+
+        .accessibility-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body class="student-exam-interface">
+    <!-- Top Voice Status Bar -->
+    <div id="voicePremiumBar" class="voice-status-bar off">
+        <i class="fas fa-microphone"></i>
+        <span id="voiceStatusText" style="margin: 0 15px;">Automated Voice Flow: Inactive</span>
+        <button id="enableVoicePremiumBtn" class="accessibility-btn">
+            Enable Voice
+        </button>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <a href="index.html" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <h1>Autoscribe</h1>
+            </a>
+            <div class="user-info">
+                <span id="studentName">Demo Student</span>
+                <button class="btn btn-outline" onclick="window.location.href='index.html'">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <main class="exam-container">
+            <div id="dashboardView">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">My Exams</h2>
+                    </div>
+                    <div id="examsList" class="exam-list">
+                        <div class="exam-item">
+                            <h4>Computer Science - Final</h4>
+                            <p>Duration: 60 minutes</p>
+                            <button class="btn btn-primary" onclick="startExam('AUTO-001')">Start Exam</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="examView" style="display: none;">
+                <div class="exam-card-premium">
+                    <div class="exam-header-meta">
+                        <h2 id="examTitle" class="subject-title">Automated Exam</h2>
+                        <div class="exam-timer-compact" id="examTimerDisplay">
+                            <i class="fas fa-clock"></i> <span>60:00</span>
+                        </div>
+                    </div>
+
+                    <div class="progress-container"
+                        style="margin-bottom: 2rem; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                        <div class="progress-bar" id="examProgress"
+                            style="width: 10%; height: 8px; background: #7c3aed; border-radius: 4px; transition: width 0.4s ease;">
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div id="examQuestions">
+                            <div class="question-header">
+                                <h3 style="font-size: 1.4rem;">Question <span id="questionNumber">1</span></h3>
+                                <span class="marks" id="questionMarks"
+                                    style="background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 20px; font-weight: 600;">(2
+                                    marks)</span>
+                            </div>
+                            <p class="question-text" id="questionText"
+                                style="font-size: 1.25rem; margin: 1.5rem 0; color: #1f2937;">Loading question...</p>
+
+                            <!-- Part A: Options -->
+                            <div id="optionsContainer" class="options-grid" style="display: none;">
+                                <!-- Dynamic Options -->
+                            </div>
+
+                            <!-- Part B: Sentence Box -->
+                            <div id="sentenceBoxContainer" class="sentence-box-container" style="display: none;">
+                                <div id="sentenceBox" class="sentence-box">... (Listening for your answer) ...</div>
+                                <div class="live-indicator">
+                                    <i class="fas fa-circle"></i> Live Dictation Active
+                                </div>
+                            </div>
+
+                            <!-- Voice Command Hint Box (Matching User Image) -->
+                            <div id="voiceHintBox"
+                                style="background: #eff6ff; border-radius: 12px; padding: 15px; margin-top: 2rem; display: flex; align-items: center; gap: 10px; color: #1e40af; font-size: 0.95rem;">
+                                <i class="fas fa-microphone" style="font-size: 1.1rem;"></i>
+                                <span>Try saying: <strong>"Select option A"</strong> or <strong>"Next
+                                        question"</strong></span>
+                            </div>
+
+                            <div
+                                style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                                <div style="display: flex; gap: 1rem;">
+                                    <button id="prevBtn" class="btn-outline-premium" disabled><i
+                                            class="fas fa-arrow-left"></i> Previous</button>
+                                    <button id="markReviewBtn" class="btn-outline-premium"><i class="far fa-flag"></i>
+                                        Mark for Review</button>
+                                </div>
+                                <span id="questionCounterDisplay" style="font-weight: 600; color: #64748b;">
+                                    Question <span id="currentQuestion">1</span> of <span id="totalQuestions">0</span>
+                                </span>
+                                <button id="nextBtn" class="btn-next-premium" style="background: #4f46e5;">Next <i
+                                        class="fas fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Hidden trigger button for the script -->
+                        <button id="autoVoiceBtn" style="display: none;"></button>
+
+                        <div style="text-align: right; margin-top: 2rem;">
+                            <button id="submitExamBtn" class="btn btn-danger"
+                                style="display: none; padding: 12px 30px; border-radius: 12px; font-weight: 700;">
+                                Finish & Submit Exam
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.7.107/pdf.min.js"></script>
+    <script src="automated-flow.js"></script>
+    <script>
+        // Start Exam Logic
+        window.startExam = function (id) {
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('examView').style.display = 'block';
+
+            // Auto-enable voice on start
+            document.getElementById('enableVoicePremiumBtn').click();
+        };
+
+        // Voice Bar Control
+        document.getElementById('enableVoicePremiumBtn').addEventListener('click', function () {
+            const bar = document.getElementById('voicePremiumBar');
+            const flowBtn = document.getElementById('autoVoiceBtn');
+            const statusText = document.getElementById('voiceStatusText');
+            const icon = bar.querySelector('i');
+
+            if (bar.classList.contains('off')) {
+                bar.classList.remove('off');
+                statusText.textContent = 'Automated Voice Flow: Active';
+                this.textContent = 'Disable Voice';
+                this.style.color = '#ef4444';
+                icon.className = 'fas fa-microphone';
+
+                // Initialize the flow
+                if (typeof initFlow === 'function') {
+                    initFlow();
+                } else if (flowBtn) {
+                    flowBtn.click();
+                }
+            } else {
+                bar.classList.add('off');
+                statusText.textContent = 'Automated Voice Flow: Inactive';
+                this.textContent = 'Enable Voice';
+                this.style.color = '#4CAF50';
+                icon.className = 'fas fa-microphone-slash';
+
+                // Stop listening
+                if (window.stopListening) window.stopListening();
+            }
+        });
+    </script>
+</body>
+
+</html>

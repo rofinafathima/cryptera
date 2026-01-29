@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - Autoscribe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="teacher-styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h1>Autoscribe Teacher Dashboard</h1>
+                </div>
+                <div class="user-info">
+                    <span id="teacher-name">Welcome, Teacher</span>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <nav class="teacher-nav">
+            <button class="nav-btn active" onclick="showSection('dashboard')">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </button>
+            <button class="nav-btn" onclick="showSection('upload')">
+                <i class="fas fa-upload"></i> Upload Papers
+            </button>
+            <button class="nav-btn" onclick="showSection('create')">
+                <i class="fas fa-edit"></i> Create Exam
+            </button>
+            <button class="nav-btn" onclick="showSection('schedule')">
+                <i class="fas fa-calendar-alt"></i> Schedule Exams
+            </button>
+            <button class="nav-btn" onclick="showSection('attendance')">
+                <i class="fas fa-users"></i> Attendance
+            </button>
+        </nav>
+
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="content-section active">
+                <h2>Dashboard Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-exams">0</h3>
+                            <p>Total Exams</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="active-exams">0</h3>
+                            <p>Active Exams</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-students">0</h3>
+                            <p>Total Students</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="completion-rate">0%</h3>
+                            <p>Completion Rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-content">
+                    <div class="recent-exams">
+                        <h3>Recent Exams</h3>
+                        <div id="recent-exams-list" class="exam-list">
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="upcoming-exams">
+                        <h3>Upcoming Exams</h3>
+                        <div id="upcoming-exams-list" class="exam-list">
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Upload Section -->
+            <section id="upload-section" class="content-section">
+                <h2>Upload Question Paper</h2>
+                <div class="upload-container">
+                    <form id="exam-upload-form" onsubmit="event.preventDefault(); uploadExam();">
+                        <div class="upload-area" id="upload-area" onclick="document.getElementById('exam-pdf').click()">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h3 id="file-name">Drop PDF files here or click to browse</h3>
+                            <p>Supported format: PDF only (Max 10MB)</p>
+                            <input type="file" id="exam-pdf" name="exam-pdf" accept=".pdf" hidden 
+                                   onchange="updateFileName(this)">
+                        </div>
+                        
+                        <div class="upload-form">
+                            <div class="form-group">
+                                <label for="exam-name">Exam Name *</label>
+                                <input type="text" id="exam-name" placeholder="Enter exam name" required>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="exam-date">Exam Date *</label>
+                                    <input type="datetime-local" id="exam-date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exam-duration">Duration (minutes) *</label>
+                                    <input type="number" id="exam-duration" placeholder="60" min="1" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="exam-subject">Subject *</label>
+                                <input type="text" id="exam-subject" placeholder="e.g., Mathematics, Physics" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="exam-description">Description</label>
+                                <textarea id="exam-description" rows="3" placeholder="Enter exam instructions or topics covered"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="exam-difficulty">Difficulty Level</label>
+                                <select id="exam-difficulty">
+                                    <option value="Easy">Easy</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="Hard">Hard</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" class="btn-secondary" onclick="resetUploadForm()">
+                                    <i class="fas fa-undo"></i> Reset
+                                </button>
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-upload"></i> Upload & Create Exam
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="upload-status" class="status-message"></div>
+                
+                <div class="recent-uploads" id="recent-uploads">
+                    <h3>Recent Uploads</h3>
+                    <div class="uploads-list" id="uploads-list">
+                        <!-- Dynamic content will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Create Exam Section -->
+            <section id="create-section" class="content-section">
+                <h2>Create New Exam</h2>
+                <div class="create-exam-container">
+                    <div class="exam-builder">
+                        <div class="exam-info-section">
+                            <h3>Exam Information</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="create-exam-name">Exam Name</label>
+                                    <input type="text" id="create-exam-name" placeholder="Enter exam name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="create-exam-duration">Duration (minutes)</label>
+                                    <input type="number" id="create-exam-duration" placeholder="60" min="1">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="create-exam-description">Description</label>
+                                <textarea id="create-exam-description" placeholder="Enter exam description"></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="create-exam-difficulty">Difficulty Level</label>
+                                    <select id="create-exam-difficulty">
+                                        <option value="Easy">Easy</option>
+                                        <option value="Medium" selected>Medium</option>
+                                        <option value="Hard">Hard</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="create-exam-type">Exam Type</label>
+                                    <select id="create-exam-type">
+                                        <option value="Multiple Choice">Multiple Choice</option>
+                                        <option value="True/False">True/False</option>
+                                        <option value="Mixed">Mixed</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="questions-section">
+                            <div class="questions-header">
+                                <h3>Questions</h3>
+                                <button class="add-question-btn" onclick="addQuestion()">
+                                    <i class="fas fa-plus"></i> Add Question
+                                </button>
+                            </div>
+                            <div class="questions-list" id="questions-list">
+                                <!-- Questions will be added here dynamically -->
+                            </div>
+                        </div>
+
+                        <div class="exam-actions">
+                            <button class="save-exam-btn" onclick="saveCreatedExam()">
+                                <i class="fas fa-save"></i> Save Exam
+                            </button>
+                            <button class="preview-exam-btn" onclick="previewCreatedExam()">
+                                <i class="fas fa-eye"></i> Preview Exam
+                            </button>
+                            <button class="clear-exam-btn" onclick="clearExam()">
+                                <i class="fas fa-trash"></i> Clear All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Schedule Section -->
+            <section id="schedule-section" class="content-section">
+                <h2>Schedule Exam</h2>
+                <div class="schedule-container">
+                    <div class="schedule-form">
+                        <div class="form-group">
+                            <label for="schedule-exam-select">Select Exam</label>
+                            <select id="schedule-exam-select">
+                                <option value="">Choose an exam to schedule</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="start-time">Start Time</label>
+                            <input type="datetime-local" id="start-time">
+                        </div>
+                        <div class="form-group">
+                            <label for="end-time">End Time</label>
+                            <input type="datetime-local" id="end-time">
+                        </div>
+                        <div class="form-group">
+                            <label for="auto-activate">
+                                <input type="checkbox" id="auto-activate" checked>
+                                Auto-activate exam at scheduled time
+                            </label>
+                        </div>
+                        <button class="schedule-btn" onclick="scheduleExam()">
+                            <i class="fas fa-calendar-plus"></i> Schedule Exam
+                        </button>
+                    </div>
+
+                    <div class="scheduled-exams">
+                        <h3>Scheduled Exams</h3>
+                        <div id="scheduled-exams-list" class="scheduled-list">
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Attendance Section -->
+            <section id="attendance-section" class="content-section">
+                <h2>Attendance Tracking</h2>
+                <div class="attendance-container">
+                    <div class="attendance-filters">
+                        <div class="form-group">
+                            <label for="attendance-exam-select">Select Exam</label>
+                            <select id="attendance-exam-select">
+                                <option value="">Choose an exam</option>
+                            </select>
+                        </div>
+                        <button class="filter-btn" onclick="loadAttendance()">
+                            <i class="fas fa-filter"></i> Load Attendance
+                        </button>
+                    </div>
+
+                    <div class="attendance-results" id="attendance-results">
+                        <div class="attendance-summary">
+                            <div class="summary-card">
+                                <h3 id="total-attendees">0</h3>
+                                <p>Total Attendees</p>
+                            </div>
+                            <div class="summary-card">
+                                <h3 id="attendance-percentage">0%</h3>
+                                <p>Attendance Rate</p>
+                            </div>
+                        </div>
+                        <div class="attendance-list" id="attendance-list">
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.7.107/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="exam-connector.js"></script>
+    <script src="script.js"></script>
+    <script src="teacher-script.js"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autoscribe - Accessible Exam Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <nav class="nav-bar">
+                <div class="logo-area">
+                    <i class="fas fa-microphone-alt"></i>
+                    <span class="logo-text">AutoScribe</span>
+                </div>
+                <div class="nav-links">
+                    <a href="#" onclick="showLogin('student')">Student</a>
+                    <a href="#" onclick="showLogin('teacher')">Teacher</a>
+                    <button class="start-exam-btn" onclick="showLogin('student')">Start Exam</button>
+                </div>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <div class="hero-section" id="hero-area">
+                <p class="hero-subline">Education Without Barriers</p>
+                <h1 class="hero-title">Write Exams with <span class="purple-text">Your Voice</span></h1>
+                <p class="hero-desc">An AI-powered voice-first exam writing system designed for blind and visually impaired students. Complete independence. Total privacy. Equal opportunity.</p>
+                
+                <div class="login-options">
+                    <div class="login-card teacher-card" onclick="showLogin('teacher')">
+                        <div class="card-icon">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <h2>Teacher Login</h2>
+                        <p>Manage exams, upload papers, and track student progress</p>
+                        <button class="login-btn">Login as Teacher</button>
+                    </div>
+
+                    <div class="login-card student-card" onclick="showLogin('student')">
+                        <div class="card-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <h2>Student Login</h2>
+                        <p>Voice-driven exam experience for accessible learning</p>
+                        <button class="login-btn">Login as Student</button>
+                    </div>
+
+                </div>
+
+                <!-- Teacher Login Form -->
+                <div id="teacher-login" class="login-form hidden">
+                    <div class="form-header">
+                        <h2>Teacher Login</h2>
+                        <button class="back-btn" onclick="hideLogin()">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                    </div>
+                    <form id="teacher-form">
+                        <div class="form-group">
+                            <label for="teacher-email">Email</label>
+                            <input type="email" id="teacher-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="teacher-password">Password</label>
+                            <input type="password" id="teacher-password" required>
+                        </div>
+                        <button type="submit" class="submit-btn">Login</button>
+                    </form>
+                </div>
+
+                <!-- Student Login Form -->
+                <div id="student-login" class="login-form hidden">
+                    <div class="form-header">
+                        <h2>Student Login</h2>
+                        <button class="back-btn" onclick="hideLogin()">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                    </div>
+                    <form id="student-form">
+                        <div class="form-group">
+                            <label for="student-id">Student ID</label>
+                            <input type="text" id="student-id" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="student-password">Password</label>
+                            <input type="password" id="student-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="language-select">Preferred Language</label>
+                            <select id="language-select">
+                                <option value="en">English</option>
+                                <option value="hi">हिन्दी (Hindi)</option>
+                                <option value="ta">தமிழ் (Tamil)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="submit-btn">Login</button>
+                    </form>
+                </div>
+
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 Autoscribe. Making education accessible for everyone.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

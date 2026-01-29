@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Mock Exam Test</title>
+</head>
+<body>
+    <h1>Simple Test</h1>
+    <button onclick="testStart()">Click to Test</button>
+    <div id="output"></div>
+
+    <div id="dashboard-section" style="padding: 20px; background: lightblue;">
+        DASHBOARD
+    </div>
+
+    <div id="mock-exam-interface" style="display: none; padding: 20px; background: lightgreen;">
+        MOCK EXAM INTERFACE
+        <div id="mock-exam-timer">10:00</div>
+        <div id="mock-question-text">Question here</div>
+        <div id="mock-options-container"></div>
+        <button id="mock-voice-btn">Voice</button>
+        <button id="mock-prev-btn">Prev</button>
+        <button id="mock-next-btn">Next</button>
+        <div id="mock-current-q">1</div>
+        <div id="mock-total-questions">5</div>
+    </div>
+
+    <!-- Load the script -->
+    <script src="enhanced-mock-exam.js"></script>
+
+    <script>
+        function testStart() {
+            const output = document.getElementById('output');
+            output.innerHTML = '<h2>Test Results:</h2>';
+            
+            // Check if function exists
+            output.innerHTML += '<p>typeof startMockExam: ' + typeof startMockExam + '</p>';
+            output.innerHTML += '<p>typeof window.startMockExam: ' + typeof window.startMockExam + '</p>';
+            
+            // Try to call it
+            if (typeof startMockExam === 'function') {
+                output.innerHTML += '<p style="color: green;">✅ Function exists! Calling it...</p>';
+                try {
+                    startMockExam();
+                    output.innerHTML += '<p style="color: green;">✅ Function called successfully!</p>';
+                } catch (e) {
+                    output.innerHTML += '<p style="color: red;">❌ Error calling function: ' + e.message + '</p>';
+                }
+            } else {
+                output.innerHTML += '<p style="color: red;">❌ Function does NOT exist!</p>';
+                output.innerHTML += '<p>Check console for errors.</p>';
+            }
+        }
+
+        // Auto-check on load
+        window.addEventListener('load', function() {
+            console.log('=== PAGE LOADED ===');
+            console.log('Checking for startMockExam...');
+            console.log('typeof startMockExam:', typeof startMockExam);
+            console.log('typeof window.startMockExam:', typeof window.startMockExam);
+            
+            if (typeof startMockExam === 'undefined') {
+                console.error('❌ startMockExam is NOT defined!');
+                console.log('Check if enhanced-mock-exam.js loaded properly');
+            } else {
+                console.log('✅ startMockExam IS defined!');
+            }
+        });
+    </script>
+</body>
+</html>
