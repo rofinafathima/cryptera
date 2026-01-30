@@ -400,8 +400,17 @@ function submitCurrentExam() {
         generateAnswersPdf(exam, answers, currentUser);
         generateAnswersText(exam, answers, currentUser);
     } catch (e) { console.error('Export failed:', e); }
-    alert('Exam submitted! Your answers have been saved as PDF and Text.');
 
+    // Show Success Overlay
+    const overlay = document.getElementById('success-overlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+    }
+
+    // Read final message via TSS instead of blocking alert
+    if (window.speak) {
+        window.speak("Exam submitted successfully. Your files are downloading. Closing portal now.");
+    }
 
     // Return to dashboard and logout automatically after reading result
     setTimeout(() => {
@@ -409,14 +418,8 @@ function submitCurrentExam() {
             localStorage.removeItem('currentUser');
             localStorage.removeItem('autoscribe_user');
         } catch (e) { }
-        // Navigate to login/home
-        if (document.getElementById('exam-section') && document.getElementById('dashboard-section')) {
-            document.getElementById('exam-section').classList.remove('active');
-            document.getElementById('dashboard-section').classList.add('active');
-        }
-        loadStudentExams && loadStudentExams();
         window.location.href = 'index.html';
-    }, 1200);
+    }, 6000); // 6s for TTS, seeing success UI, and downloads
 }
 
 // Initialize on page load

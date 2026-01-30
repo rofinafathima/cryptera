@@ -49,7 +49,8 @@
         statusIndicator: document.querySelector('.live-indicator'),
         progressBar: document.getElementById('examProgress') || document.getElementById('exam-progress'),
         timerDisplay: document.querySelector('#examTimerDisplay span') || document.querySelector('#exam-time'),
-        questionMarks: document.getElementById('questionMarks') || document.getElementById('question-marks')
+        questionMarks: document.getElementById('questionMarks') || document.getElementById('question-marks'),
+        submitExamBtn: document.getElementById('submitExamBtn')
     });
 
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
@@ -194,6 +195,15 @@
             els.progressBar.style.width = pct + '%';
         }
 
+        // Toggle Next/Submit visibility
+        if (index === flowState.examQuestions.length - 1) {
+            if (els.nextBtn) els.nextBtn.style.display = 'none';
+            if (els.submitExamBtn) els.submitExamBtn.style.display = 'inline-flex';
+        } else {
+            if (els.nextBtn) els.nextBtn.style.display = 'inline-flex';
+            if (els.submitExamBtn) els.submitExamBtn.style.display = 'none';
+        }
+
         // Restore saved answer or clear
         const savedAnswer = flowState.userAnswers[index];
 
@@ -238,7 +248,9 @@
             if (els.timerDisplay) els.timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             if (--timer < 0) {
                 clearInterval(flowState.timerInterval);
-                finishExam();
+                speak("Time is up. Your exam is being submitted automatically.", () => {
+                    proceedToSubmit();
+                });
             }
         }, 1000);
     }
@@ -378,13 +390,13 @@
 
 
         if (flowState.isConfirmingSubmit) {
-            if (isSubmit || isYes) {
+            if (isYes || isSubmit || (raw === 'submit')) {
                 flowState.isConfirmingSubmit = false;
                 proceedToSubmit();
                 return;
             }
 
-            if (isNo) {
+            if (isNo || raw === 'cancel') {
                 flowState.isConfirmingSubmit = false;
                 speak("Okay, continuing the exam. You are on question " + (flowState.currentIndex + 1), startListening);
                 return;
@@ -578,7 +590,11 @@
         if (flowState.currentIndex < flowState.examQuestions.length - 1) {
             loadItem(flowState.currentIndex + 1);
         } else {
-            finishExam();
+            // Automatically prompt for submission at the end
+            speak("This was the last question. Do you want to submit the exam?", () => {
+                flowState.isConfirmingSubmit = true;
+                startListening();
+            });
         }
     }
 
@@ -600,7 +616,7 @@
         const els = getElements();
         stopListening();
 
-        speak("Are you sure you want to submit the exam? Say yes to confirm or no to continue working.", () => {
+        speak("Do you want to submit the exam? Say yes to confirm or no to continue working.", () => {
             flowState.isConfirmingSubmit = true;
             startListening();
         });
@@ -625,10 +641,13 @@
             window.currentExamState.answers = flowState.userAnswers;
         }
 
-        // Trigger the main submission logic
-        const btn = document.getElementById('submitExamBtn');
-        if (btn) btn.click();
-        else if (window.submitCurrentExam) window.submitCurrentExam();
+        // Trigger the main submission logic directly to bypass UI confirmation modals
+        if (window.submitCurrentExam) {
+            window.submitCurrentExam();
+        } else {
+            const btn = document.getElementById('submitExamBtn');
+            if (btn) btn.click();
+        }
     }
 
     // Exports

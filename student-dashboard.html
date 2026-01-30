@@ -216,14 +216,80 @@
                             <button class="btn btn-primary" id="nextBtn" style="background: #4f46e5;">
                                 Next <i class="fas fa-arrow-right"></i>
                             </button>
+                            <!-- Submit Button - visible only on last question -->
+                            <button id="submitExamBtn" class="btn btn-danger"
+                                style="display: none; background: #dc2626;">
+                                <i class="fas fa-check-circle"></i> Submit Exam
+                            </button>
                         </div>
                         <!-- Hidden for script trigger -->
                         <button id="autoVoiceBtn" style="display: none;"></button>
-                        <button id="submitExamBtn" class="btn btn-danger"
-                            style="display: none; margin-top: 2rem; width: 100%;">Submit Exam</button>
                     </div>
                 </div>
             </section>
+
+            <!-- Success Overlay -->
+            <div id="success-overlay" class="success-overlay"
+                style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99999; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; backdrop-filter: blur(8px);">
+                <div class="success-content"
+                    style="background: #1e293b; padding: 3rem; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); max-width: 500px; width: 90%;">
+                    <div class="success-icon"
+                        style="font-size: 5rem; color: #22c55e; margin-bottom: 1.5rem; animation: scaleUp 0.5s ease-out;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h2 style="font-size: 2rem; margin-bottom: 1rem; font-weight: 800;">Exam Submitted!</h2>
+                    <p style="font-size: 1.1rem; color: #94a3b8; margin-bottom: 2rem; line-height: 1.6;">Your answers
+                        have been saved successfully. Your PDF and Text reports are downloading now.</p>
+                    <div class="file-icons"
+                        style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem;">
+                        <div
+                            style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 12px; border-radius: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </div>
+                        <div
+                            style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 12px; border-radius: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-file-alt"></i> TEXT
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="window.location.href='index.html'"
+                        style="width: 100%; padding: 12px; font-weight: 600;">Return to Home</button>
+                </div>
+            </div>
+
+            <style>
+                @keyframes scaleUp {
+                    from {
+                        transform: scale(0.5);
+                        opacity: 0;
+                    }
+
+                    to {
+                        transform: scale(1);
+                        opacity: 1;
+                    }
+                }
+
+                @keyframes pulse-red {
+                    0% {
+                        transform: scale(1);
+                        opacity: 1;
+                    }
+
+                    50% {
+                        transform: scale(1.2);
+                        opacity: 0.7;
+                    }
+
+                    100% {
+                        transform: scale(1);
+                        opacity: 1;
+                    }
+                }
+
+                .success-overlay {
+                    transition: all 0.3s ease;
+                }
+            </style>
 
 
             <!-- Mock Exam Interface (initially hidden) -->
