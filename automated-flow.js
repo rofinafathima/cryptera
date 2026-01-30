@@ -17,17 +17,22 @@
         timerInterval: null,
         isLocked: false, // Task 3: Lock state
         isNavigating: false, // Guard to prevent double-firing commands
-        isConfirming: false, // New state for review confirmation
+        isConfirmingNav: false, // NEW state for "Edit or Next"
         isConfirmingSubmit: false,
+        isConfirmingEmpty: false, // NEW state for empty answer bypass
+
+
         userAnswers: {} // Task fixes: Store answers by index
     };
 
     const FILLER_WORDS = ['um', 'uh', 'ah', 'like', 'you know', 'basically', 'actually', 'sort of', 'kind of', 'i mean', 'right', 'so'];
     const COMMAND_PHRASES = [
-        'next question', 'previous question', 'lock answer', 'submit exam', 
-        'submit', 'next', 'previous', 'read my answer', 'review answer', 
-        'verify answer', 'repeat my answer'
+        'next question', 'previous question', 'lock answer', 'submit exam',
+        'submit', 'next', 'previous', 'read my answer', 'review answer',
+        'verify answer', 'repeat my answer', 'unlock answer', 'edit answer',
+        'change answer', 'unlock'
     ];
+
 
     // Dynamic element lookup
     const getElements = () => ({
@@ -62,19 +67,19 @@
         synthesis.speak(utterance);
     }
 
-    // Task 1 Refinement: Accurate real-time formatting
-    function formatSpeech(text) {
+    function formatSpeech(text, isInterim = false) {
         if (!text) return "";
         let formatted = text.toLowerCase();
 
-        // Task fix: Aggressively scrub commands including standalone 'next' or 'previous'
+        // Task fix: Aggressively scrub commands
         COMMAND_PHRASES.forEach(cmd => {
             const regex = new RegExp(`\\b${cmd}\\b`, 'gi');
             formatted = formatted.replace(regex, '');
         });
 
-        // Remove fillers
-        FILLER_WORDS.forEach(word => {
+        // Remove fillers - 'so' removed from list to prevent mangling 'S' sounds
+        const fillers = ['um', 'uh', 'ah', 'like', 'you know', 'basically', 'actually', 'sort of', 'kind of', 'i mean', 'right'];
+        fillers.forEach(word => {
             const regex = new RegExp(`\\b${word}\\b`, 'gi');
             formatted = formatted.replace(regex, '');
         });
@@ -86,8 +91,8 @@
             // Capitalize first letter
             formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
 
-            // Add punctuation if missing
-            if (!/[.!?]$/.test(formatted)) {
+            // Add punctuation ONLY if it's the final result and not a short fragment
+            if (!isInterim && !/[.!?]$/.test(formatted) && formatted.split(' ').length > 2) {
                 formatted += '.';
             }
 
@@ -97,6 +102,7 @@
 
         return formatted;
     }
+
 
     async function saveToMySQL(data) {
         const els = getElements();
@@ -108,8 +114,9 @@
         // Sync with main exam state for PDF generation
         if (window.currentExamState) {
             if (!window.currentExamState.answers) window.currentExamState.answers = {};
-            const cleanAns = typeof data.answer === 'string' ? formatSpeech(data.answer) : data.answer;
+            const cleanAns = typeof data.answer === 'string' ? formatSpeech(data.answer, false) : data.answer;
             window.currentExamState.answers[data.id] = cleanAns;
+
 
             if (window.currentExamState.answersArray) {
                 window.currentExamState.answersArray[data.index] = cleanAns;
@@ -173,6 +180,9 @@
 
         flowState.isLocked = false;
         flowState.isNavigating = false;
+        flowState.isConfirmingEmpty = false;
+        flowState.isConfirmingNav = false;
+
 
         if (els.questionNumber) els.questionNumber.textContent = index + 1;
         if (els.currentQuestionSpan) els.currentQuestionSpan.textContent = index + 1;
@@ -205,7 +215,9 @@
                 if (els.sentenceBox) {
                     els.sentenceBox.textContent = savedAnswer;
                     els.sentenceBox.classList.add('saved');
+                    els.sentenceBox.style.opacity = flowState.isLocked ? '0.7' : '1';
                 }
+
             } else {
                 flowState.tempTranscript = '';
                 if (els.sentenceBox) els.sentenceBox.textContent = '';
@@ -312,46 +324,73 @@
 
         if (flowState.isNavigating) return; // Ignore input while moving
 
-        const isNext = raw.includes('next question');
-        const isPrev = raw.includes('previous question');
+        const isNext = raw.includes('next question') || raw === 'next';
+        const isPrev = raw.includes('previous question') || raw === 'previous';
         const isLock = raw.includes('lock answer') || raw === 'lock';
+        const isUnlock = raw.includes('unlock answer') || raw.includes('edit answer') || raw.includes('change answer') || raw === 'unlock' || raw === 'edit';
         const isSubmit = raw.includes('submit exam') || raw === 'submit';
-        const isReview = raw.includes('read my answer') || raw.includes('review answer') || 
-                         raw.includes('verify answer') || raw.includes('repeat my answer') ||
-                         raw.includes('read answer');
-        
+        const isReview = raw.includes('read my answer') || raw.includes('review answer') ||
+            raw.includes('verify answer') || raw.includes('repeat my answer') ||
+            raw.includes('read answer');
+
         const isDeleteWord = raw.includes('delete last word') || raw.includes('remove last word');
         const isClear = raw.includes('clear answer') || raw.includes('delete answer') || raw.includes('erase answer');
         const isReplace = raw.includes('replace') && raw.includes('with');
 
-        const isYes = raw === 'yes' || raw.includes('correct') || raw.includes('proceed');
-        const isNo = raw === 'no' || raw.includes('edit') || raw.includes('change');
+        const isYes = raw === 'yes' || raw.includes('correct') || raw.includes('proceed') || raw === 'yep' || raw === 'yeah' || raw === 'ok' || raw === 'okay' || raw === 'sure';
+        const isNo = raw === 'no' || raw.includes('cancel') || raw.includes('incorrect') || raw === 'nope' || raw === 'negative' || raw === 'dont' || raw.includes('no no');
 
-        if (flowState.isConfirming) {
-            if (isYes) {
-                flowState.isConfirming = false;
+
+
+        if (flowState.isConfirmingNav) {
+            if (isNext) {
+                flowState.isConfirmingNav = false;
                 proceedToNext();
                 return;
             }
-            if (isNo) {
-                flowState.isConfirming = false;
-                speak("Okay, you can continue speaking to edit your answer.", startListening);
+            if (raw === 'edit' || raw.includes('edit')) {
+                flowState.isConfirmingNav = false;
+                flowState.isLocked = false;
+                if (els.sentenceBox) {
+                    els.sentenceBox.classList.remove('saved');
+                    els.sentenceBox.style.opacity = '1';
+                    els.sentenceBox.classList.add('editing');
+                }
+                speak("Unlocked. You can continue speaking to edit your answer.", startListening);
                 return;
             }
         }
 
+        if (flowState.isConfirmingEmpty) {
+            if (isNext || isYes) {
+                flowState.isConfirmingEmpty = false;
+                proceedToNext();
+                return;
+            }
+            if (isNo || raw.includes('edit')) {
+                flowState.isConfirmingEmpty = false;
+                speak("Okay, please provide your answer.", startListening);
+                return;
+            }
+        }
+
+
+
+
         if (flowState.isConfirmingSubmit) {
-            if (isYes) {
+            if (isSubmit || isYes) {
                 flowState.isConfirmingSubmit = false;
                 proceedToSubmit();
                 return;
             }
+
             if (isNo) {
                 flowState.isConfirmingSubmit = false;
                 speak("Okay, continuing the exam. You are on question " + (flowState.currentIndex + 1), startListening);
                 return;
             }
         }
+
 
         if (isReview) {
             handleReviewAnswer();
@@ -371,9 +410,10 @@
                 if (words.length > 0) {
                     const removed = words.pop();
                     flowState.tempTranscript = words.join(' ');
-                    if (els.sentenceBox) els.sentenceBox.textContent = formatSpeech(flowState.tempTranscript);
+                    if (els.sentenceBox) els.sentenceBox.textContent = formatSpeech(flowState.tempTranscript, true);
                     speak(`Removed ${removed}.`);
                 } else {
+
                     speak("Nothing to delete.");
                 }
                 return;
@@ -385,13 +425,14 @@
                     const target = match[1].trim();
                     const replacement = match[2].trim();
                     const currentText = flowState.tempTranscript || "";
-                    
+
                     if (currentText.toLowerCase().includes(target.toLowerCase())) {
                         const regex = new RegExp(target, 'gi');
                         flowState.tempTranscript = currentText.replace(regex, replacement);
-                        if (els.sentenceBox) els.sentenceBox.textContent = formatSpeech(flowState.tempTranscript);
+                        if (els.sentenceBox) els.sentenceBox.textContent = formatSpeech(flowState.tempTranscript, true);
                         speak(`Replaced ${target} with ${replacement}.`);
                     } else {
+
                         speak(`I couldn't find the word ${target} in your answer.`);
                     }
                     return;
@@ -414,19 +455,23 @@
             finishExam();
             return;
         }
-        if (isLock && !flowState.isLocked) {
-            console.log("Command: Lock Answer");
-            flowState.isLocked = true;
+        if (isUnlock) {
+            console.log("Command: Unlock/Edit Answer");
+            flowState.isLocked = false;
+            flowState.isConfirmingNav = false;
             if (els.sentenceBox) {
-                els.sentenceBox.classList.add('saved');
-                els.sentenceBox.style.opacity = '0.7';
+
+                els.sentenceBox.classList.remove('saved');
+                els.sentenceBox.style.opacity = '1';
+                els.sentenceBox.classList.add('editing');
             }
-            speak("Answer locked. Say next to proceed.");
+            speak("Unlocked. You can continue speaking to edit your answer.", startListening);
             return;
         }
 
         // 2. Transcription Block: Stop if locked
         if (flowState.isLocked) return;
+
 
         // 3. Normal Transcription Logic
         if (flowState.currentPart === 'A') {
@@ -448,15 +493,16 @@
         } else {
             // Descriptive answer display
             if (final) {
-                const cleanFinal = formatSpeech(final);
+                const cleanFinal = formatSpeech(final, false);
                 if (cleanFinal) flowState.tempTranscript += ' ' + cleanFinal;
             }
 
-            const currentDisplay = formatSpeech(flowState.tempTranscript + ' ' + interim);
+            const currentDisplay = formatSpeech(flowState.tempTranscript + ' ' + interim, true);
 
             if (els.sentenceBox) {
                 els.sentenceBox.textContent = currentDisplay;
             }
+
         }
     };
 
@@ -470,7 +516,7 @@
     async function handleReviewAnswer() {
         const els = getElements();
         const currentAnswer = els.sentenceBox ? els.sentenceBox.textContent : "";
-        
+
         if (!currentAnswer || currentAnswer.trim() === "" || currentAnswer.includes("listening")) {
             speak("You haven't provided an answer yet. Please speak your answer first.");
             return;
@@ -488,7 +534,7 @@
         const els = getElements();
         const q = flowState.examQuestions[flowState.currentIndex];
         let answerText = "";
-        
+
         if (flowState.currentPart === 'A') {
             if (flowState.selectedOption !== null && q.options && q.options[flowState.selectedOption]) {
                 answerText = `Option ${String.fromCharCode(65 + flowState.selectedOption)}, ${q.options[flowState.selectedOption]}`;
@@ -501,19 +547,21 @@
 
         if (!answerText || answerText === "" || answerText === "No option selected") {
             speak("You haven't provided an answer. Are you sure you want to move to the next question?", () => {
-                flowState.isConfirming = true;
+                flowState.isConfirmingEmpty = true;
                 startListening();
             });
             return;
         }
 
-        // Proactively ask for review as requested by user
+
+        // Read answer and prompt for Next/Edit
         stopListening();
-        speak(`Your answer is: ${answerText}. Say yes to proceed or no to edit.`, () => {
-            flowState.isConfirming = true;
+        speak(`Your answer is: ${answerText}. Would you like to edit it or go to the next question?`, () => {
+            flowState.isConfirmingNav = true;
             startListening();
         });
     }
+
 
     async function proceedToNext() {
         if (flowState.isNavigating) return;
@@ -570,7 +618,7 @@
         const answer = flowState.currentPart === 'A' ? flowState.selectedOption : (els.sentenceBox ? els.sentenceBox.textContent : "");
         await saveToMySQL({ index: flowState.currentIndex, id: q.id, answer });
 
-        speak("Exam submitted successfully. Your answers have been saved and the PDF is in your Downloads.");
+        speak("Exam submitted successfully. Your answers have been saved and the PDF and Text files are in your Downloads.");
 
         // Final sync before submit
         if (window.currentExamState) {

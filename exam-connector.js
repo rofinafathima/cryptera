@@ -396,8 +396,12 @@ function submitCurrentExam() {
     const answers = window.currentExamState.answers;
 
     saveStudentSubmission(exam.id, currentUser.id, answers, '');
-    try { generateAnswersPdf(exam, answers, currentUser); } catch (e) { }
-    alert('Exam submitted!');
+    try {
+        generateAnswersPdf(exam, answers, currentUser);
+        generateAnswersText(exam, answers, currentUser);
+    } catch (e) { console.error('Export failed:', e); }
+    alert('Exam submitted! Your answers have been saved as PDF and Text.');
+
 
     // Return to dashboard and logout automatically after reading result
     setTimeout(() => {
@@ -651,3 +655,55 @@ function generateAnswersPdf(exam, answers, user) {
         console.error('PDF generation failed', e);
     }
 }
+
+function generateAnswersText(exam, answers, user) {
+    try {
+        let textContent = `EXAM ANSWERS - ${exam.name}\n`;
+        textContent += `====================================\n`;
+        textContent += `Student: ${user && user.name ? user.name : 'N/A'} (${user && user.id ? user.id : 'N/A'})\n`;
+        textContent += `Date: ${new Date().toLocaleString()}\n`;
+        textContent += `------------------------------------\n\n`;
+
+        exam.questions.forEach((q, i) => {
+            textContent += `Q${i + 1}: ${q.text}\n`;
+
+            let ans = (q && 'id' in q) ? answers[q.id] : undefined;
+            if (ans === undefined && window.currentExamState && Array.isArray(window.currentExamState.answersArray)) {
+                ans = window.currentExamState.answersArray[i];
+            }
+
+            let ansText = '';
+            if (q.options && Array.isArray(q.options)) {
+                if (typeof ans === 'number') {
+                    const letter = String.fromCharCode(65 + ans);
+                    const opt = q.options[ans] || '';
+                    ansText = `${letter} - ${opt}`;
+                } else if (typeof ans === 'string') {
+                    ansText = ans;
+                } else {
+                    ansText = '(not answered)';
+                }
+            } else {
+                ansText = (ans !== undefined && ans !== null && String(ans).length) ? String(ans) : '(not answered)';
+            }
+
+            textContent += `Answer: ${ansText}\n\n`;
+        });
+
+        const blob = new Blob([textContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const safeName = (exam.name || 'exam').replace(/[^a-z0-9_\-]+/gi, '_');
+        const sid = user && user.id ? user.id : 'student';
+
+        a.href = url;
+        a.download = `answers_${safeName}_${sid}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (e) {
+        console.error('Text generation failed', e);
+    }
+}
+

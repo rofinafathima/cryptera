@@ -168,6 +168,7 @@ body {
     font-weight: 900;
     background: linear-gradient(to right, #ffffff, var(--text-secondary));
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -179,7 +180,8 @@ body {
 }
 
 /* Exam Cards */
-.exam-card, .exam-item {
+.exam-card,
+.exam-item {
     background: rgba(30, 41, 59, 0.45);
     backdrop-filter: blur(10px);
     padding: 28px;
@@ -192,22 +194,27 @@ body {
     overflow: hidden;
 }
 
-.exam-card::before, .exam-item::before {
+.exam-card::before,
+.exam-item::before {
     content: '';
     position: absolute;
-    top: 0; left: 0;
-    width: 6px; height: 100%;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
     background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
 }
 
-.exam-card:hover, .exam-item:hover {
+.exam-card:hover,
+.exam-item:hover {
     transform: translateY(-8px);
     background: rgba(30, 41, 59, 0.65);
     border-color: var(--primary-color);
     box-shadow: var(--shadow-heavy), 0 0 30px rgba(99, 102, 241, 0.2);
 }
 
-.exam-card h3, .exam-item h4 {
+.exam-card h3,
+.exam-item h4 {
     color: #ffffff;
     margin: 0 0 15px 0;
     font-size: 1.5rem;
@@ -215,7 +222,8 @@ body {
     letter-spacing: -0.5px;
 }
 
-.exam-card p, .exam-item p {
+.exam-card p,
+.exam-item p {
     color: var(--text-secondary);
     font-size: 1.05rem;
     margin-bottom: 12px;
@@ -298,8 +306,13 @@ body {
 }
 
 @keyframes shine {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .mock-exam-btn {
@@ -317,9 +330,17 @@ body {
 }
 
 @keyframes pulse-purple {
-    0% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4); }
-    70% { box-shadow: 0 0 0 15px rgba(168, 85, 247, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }
+    0% {
+        box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 15px rgba(168, 85, 247, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(168, 85, 247, 0);
+    }
 }
 
 .mock-exam-btn:hover {
@@ -373,8 +394,13 @@ body {
 }
 
 @keyframes rotate-border {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .quick-actions .action-btn::after {
@@ -407,16 +433,28 @@ body {
     animation: fadeInUpScale 0.6s backwards;
 }
 
-.quick-actions .action-btn:nth-child(1) { animation-delay: 0.1s; }
-.quick-actions .action-btn:nth-child(2) { animation-delay: 0.2s; }
-.quick-actions .action-btn:nth-child(3) { animation-delay: 0.3s; }
-.quick-actions .action-btn:nth-child(4) { animation-delay: 0.4s; }
+.quick-actions .action-btn:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.quick-actions .action-btn:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.quick-actions .action-btn:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.quick-actions .action-btn:nth-child(4) {
+    animation-delay: 0.4s;
+}
 
 @keyframes fadeInUpScale {
     from {
         opacity: 0;
         transform: translateY(20px) scale(0.9);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -1135,9 +1173,14 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #e0e0e0;
+    padding: 20px 30px !important;
+    border-bottom: 1px solid rgba(168, 85, 247, 0.2) !important;
+    background: rgba(15, 23, 42, 0.4) !important;
+    backdrop-filter: blur(12px) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
 }
+
 
 .exam-info {
     display: flex;
@@ -1469,8 +1512,14 @@ body {
     margin-bottom: 20px;
     font-size: 1.4rem;
     border-bottom: 2px solid #667eea;
-    padding-bottom: 10px;
+    padding-bottom: 20px;
 }
+
+.content-section {
+    background: transparent !important;
+    padding: 0 !important;
+}
+
 
 .help-section ul {
     list-style: none;
@@ -1494,10 +1543,10 @@ body {
 
 /* Mock Exam Interface Styling */
 #mock-exam-interface .card {
-    background: white;
+    background: transparent !important;
     border-radius: 15px;
     padding: 30px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: none !important;
 }
 
 #mock-exam-interface .exam-header {
@@ -1505,9 +1554,11 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #e0e7ff;
+    padding: 20px !important;
+    border-bottom: 2px solid rgba(168, 85, 247, 0.1) !important;
+    background: transparent !important;
 }
+
 
 #mock-exam-interface .exam-timer {
     background: linear-gradient(135deg, #fcd34d 0%, #fde68a 100%);
@@ -1731,7 +1782,8 @@ body {
 }
 
 .option-text {
-    color: #f8fafc !important; /* Slate 50 */
+    color: #f8fafc !important;
+    /* Slate 50 */
     font-size: 1.1rem !important;
     font-weight: 500 !important;
 }
@@ -1749,21 +1801,31 @@ body {
 
 .sentence-box {
     min-height: 180px !important;
-    background: rgba(2, 6, 23, 0.8) !important;
-    border: 2px solid var(--primary-color) !important;
+    background: rgba(2, 6, 23, 0.4) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 2px solid rgba(99, 102, 241, 0.4) !important;
     padding: 25px !important;
-    border-radius: 16px !important;
+    border-radius: 20px !important;
     font-size: 1.25rem !important;
     line-height: 1.7 !important;
     color: #ffffff !important;
     margin-top: 20px !important;
-    box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(99, 102, 241, 0.05) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .sentence-box.saved {
     border-color: var(--success-color) !important;
-    box-shadow: 0 0 15px rgba(16, 185, 129, 0.2) !important;
+    background: rgba(16, 185, 129, 0.05) !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.1) !important;
 }
+
+.sentence-box.editing {
+    border-color: var(--primary-color) !important;
+    background: rgba(99, 102, 241, 0.1) !important;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.2) !important;
+}
+
 
 .voice-command-hint {
     background: rgba(30, 41, 59, 0.6) !important;
@@ -1785,4 +1847,16 @@ body {
     font-weight: 800 !important;
     text-transform: uppercase;
     letter-spacing: 1px !important;
+}
+
+#examTitle {
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #ffffff !important;
+}
+
+.exam-meta span {
+    color: #94a3b8 !important;
+    font-weight: 600;
 }

@@ -15,19 +15,19 @@ let createdExam = {
 };
 
 // Initialize teacher dashboard
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     loadDashboardData();
     setupEventListeners();
     loadExams();
     loadScheduledExams();
     setupFileUpload();
     setupTTSControls();
-    
+
     // Configure PDF.js worker if available
     if (window['pdfjsLib']) {
         try {
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.7.107/pdf.worker.min.js';
-        } catch (e) {}
+        } catch (e) { }
     }
 });
 // OCR fallback: rasterize each PDF page and run Tesseract
@@ -45,7 +45,7 @@ async function ocrExtractTextFromPDF(file) {
             canvas.height = viewport.height;
             await page.render({ canvasContext: ctx, viewport }).promise;
             const dataUrl = canvas.toDataURL('image/png');
-            const result = await Tesseract.recognize(dataUrl, 'eng', { logger: m => (m.status==='recognizing text'?console.log(`OCR ${p}/${pdf.numPages}: ${Math.round((m.progress||0)*100)}%`):null) });
+            const result = await Tesseract.recognize(dataUrl, 'eng', { logger: m => (m.status === 'recognizing text' ? console.log(`OCR ${p}/${pdf.numPages}: ${Math.round((m.progress || 0) * 100)}%`) : null) });
             fullText += '\n' + (result.data && result.data.text ? result.data.text : '');
         }
         return fullText;
@@ -72,9 +72,9 @@ function loadParsedIntoBuilder(meta, parsedQuestions) {
 
     // Map parsed questions into builder format
     createdExam.questions = parsedQuestions.map((pq, idx) => ({
-        id: `question_${idx+1}`,
+        id: `question_${idx + 1}`,
         text: pq.text || '',
-        options: Array.isArray(pq.options) && pq.options.length ? pq.options.slice(0,4).concat(Array(4).fill('')).slice(0,4) : [],
+        options: Array.isArray(pq.options) && pq.options.length ? pq.options.slice(0, 4).concat(Array(4).fill('')).slice(0, 4) : [],
         correct: (typeof pq.correct === 'number' ? pq.correct : 0)
     }));
 
@@ -103,6 +103,7 @@ function showParsedPreview(meta, parsedQuestions) {
     modal.style.boxShadow = '0 10px 30px rgba(0,0,0,0.25)';
     modal.style.display = 'flex';
     modal.style.flexDirection = 'column';
+    modal.style.color = '#1f2937';
 
     const header = document.createElement('div');
     header.style.padding = '16px 20px';
@@ -122,12 +123,12 @@ function showParsedPreview(meta, parsedQuestions) {
         item.style.borderRadius = '8px';
         item.style.padding = '12px';
         item.style.marginBottom = '10px';
-        const title = `Q${idx+1}. ${escapeHtml(q.text)}`;
+        const title = `Q${idx + 1}. ${escapeHtml(q.text)}`;
         let html = `<div style="font-weight:600;margin-bottom:6px">${title}</div>`;
         if (q.options && q.options.length) {
-            html += '<ol type="A" style="margin:0 0 4px 18px">' + q.options.map(o=>`<li>${escapeHtml(o)}</li>`).join('') + '</ol>';
+            html += '<ol type="A" style="margin:0 0 4px 18px">' + q.options.map(o => `<li>${escapeHtml(o)}</li>`).join('') + '</ol>';
         }
-        html += `<div style="color:#6b7280;font-size:12px">marks: ${q.marks||2}${typeof q.correct==='number'?' • correct stored':''}</div>`;
+        html += `<div style="color:#6b7280;font-size:12px">marks: ${q.marks || 2}${typeof q.correct === 'number' ? ' • correct stored' : ''}</div>`;
         item.innerHTML = html;
         list.appendChild(item);
     });
@@ -200,26 +201,26 @@ function showParsedPreview(meta, parsedQuestions) {
     document.body.appendChild(overlay);
 }
 
-function escapeHtml(s){
-    return String(s||'')
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;')
-      .replace(/'/g,'&#39;');
+function escapeHtml(s) {
+    return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 // Setup event listeners
 function setupEventListeners() {
     // Speech rate and pitch controls
-    document.getElementById('speech-rate').addEventListener('input', function() {
+    document.getElementById('speech-rate').addEventListener('input', function () {
         document.getElementById('rate-value').textContent = this.value;
     });
-    
-    document.getElementById('speech-pitch').addEventListener('input', function() {
+
+    document.getElementById('speech-pitch').addEventListener('input', function () {
         document.getElementById('pitch-value').textContent = this.value;
     });
-    
+
     // Auto-refresh dashboard every 30 seconds
     setInterval(loadDashboardData, 30000);
 }
@@ -230,15 +231,15 @@ function showSection(sectionName) {
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
     });
-    
+
     // Remove active class from all nav buttons
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    
+
     // Show selected section
     document.getElementById(`${sectionName}-section`).classList.add('active');
-    
+
     // Add active class to clicked nav button (guard if called programmatically)
     if (typeof event !== 'undefined' && event && event.target) {
         event.target.classList.add('active');
@@ -246,11 +247,11 @@ function showSection(sectionName) {
         const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.textContent.toLowerCase().includes(sectionName));
         if (btn) btn.classList.add('active');
     }
-    
+
     currentSection = sectionName;
-    
+
     // Load section-specific data
-    switch(sectionName) {
+    switch (sectionName) {
         case 'dashboard':
             loadDashboardData();
             break;
@@ -276,18 +277,18 @@ function scheduleExam() {
     const startTime = document.getElementById('start-time').value;
     const endTime = document.getElementById('end-time').value;
     const autoActivate = document.getElementById('auto-activate').checked;
-    
+
     if (!examId || !startTime || !endTime) {
         alert('Please fill in all fields.');
         return;
     }
-    
+
     const exam = exams.find(e => e.id === examId);
     if (!exam) {
         alert('Exam not found.');
         return;
     }
-    
+
     const scheduledExam = {
         id: Date.now().toString(),
         examId: examId,
@@ -297,20 +298,20 @@ function scheduleExam() {
         status: autoActivate ? 'scheduled' : 'active',
         autoActivate: autoActivate
     };
-    
+
     scheduledExams.push(scheduledExam);
-    
+
     // Clear form
     document.getElementById('schedule-exam-select').value = '';
     document.getElementById('start-time').value = '';
     document.getElementById('end-time').value = '';
     document.getElementById('auto-activate').checked = true;
-    
+
     // Set up auto-activation if enabled
     if (autoActivate) {
         setupAutoActivation(scheduledExam);
     }
-    
+
     loadScheduledExams();
     alert('Exam scheduled successfully!');
 }
@@ -320,7 +321,7 @@ function setupAutoActivation(scheduledExam) {
     const startTime = new Date(scheduledExam.startTime);
     const endTime = new Date(scheduledExam.endTime);
     const now = new Date();
-    
+
     // Activate exam at start time
     if (startTime > now) {
         const timeToStart = startTime.getTime() - now.getTime();
@@ -328,7 +329,7 @@ function setupAutoActivation(scheduledExam) {
             activateExam(scheduledExam.id);
         }, timeToStart);
     }
-    
+
     // Deactivate exam at end time
     if (endTime > now) {
         const timeToEnd = endTime.getTime() - now.getTime();
@@ -361,7 +362,7 @@ function deactivateExam(scheduledExamId) {
 // Load scheduled exams
 function loadScheduledExams() {
     const container = document.getElementById('scheduled-exams-list');
-    
+
     container.innerHTML = scheduledExams.map(exam => `
         <div class="scheduled-item">
             <h4>${exam.name}</h4>
@@ -388,12 +389,12 @@ function loadAttendanceExams() {
 // Load attendance data
 function loadAttendance() {
     const examId = document.getElementById('attendance-exam-select').value;
-    
+
     if (!examId) {
         alert('Please select an exam.');
         return;
     }
-    
+
     // Simulate loading attendance data
     const mockAttendance = generateMockAttendance(examId);
     displayAttendance(mockAttendance);
@@ -403,11 +404,11 @@ function loadAttendance() {
 function generateMockAttendance(examId) {
     const exam = exams.find(e => e.id === examId);
     if (!exam) return { attendees: [], total: 0, percentage: 0 };
-    
+
     const totalStudents = 150;
     const attendees = Math.floor(Math.random() * totalStudents * 0.8) + 20; // 20-140 students
     const percentage = Math.round((attendees / totalStudents) * 100);
-    
+
     const studentList = [];
     for (let i = 1; i <= totalStudents; i++) {
         studentList.push({
@@ -416,7 +417,7 @@ function generateMockAttendance(examId) {
             present: i <= attendees
         });
     }
-    
+
     return {
         attendees: studentList,
         total: attendees,
@@ -428,7 +429,7 @@ function generateMockAttendance(examId) {
 function displayAttendance(data) {
     document.getElementById('total-attendees').textContent = data.total;
     document.getElementById('attendance-percentage').textContent = data.percentage + '%';
-    
+
     const container = document.getElementById('attendance-list');
     container.innerHTML = data.attendees.map(student => `
         <div class="attendance-item">
@@ -457,12 +458,12 @@ function previewSpeech() {
     const examDate = document.getElementById('preview-exam-date').textContent;
     const examDuration = document.getElementById('preview-exam-duration').textContent;
     const difficulty = document.getElementById('preview-difficulty').textContent;
-    
+
     const rate = parseFloat(document.getElementById('speech-rate').value);
     const pitch = parseFloat(document.getElementById('speech-pitch').value);
-    
+
     const text = `Exam: ${examName}. ${examDate}. ${examDuration}. ${difficulty}. This is a preview of how the exam will sound to students.`;
-    
+
     if (window.AutoscribeUtils) {
         window.AutoscribeUtils.speak(text, rate, pitch);
     }
@@ -489,7 +490,7 @@ function initializeSampleData() {
     const userData = getUserData();
     if (userData && userData.type === 'teacher') {
         document.getElementById('teacher-name').textContent = `Welcome, ${userData.name}`;
-        
+
         // Load teacher's exams
         const teacherExams = getExamsByTeacher(userData.id);
         exams = teacherExams.map(exam => ({
@@ -500,7 +501,7 @@ function initializeSampleData() {
             description: exam.description,
             difficulty: exam.difficulty
         }));
-        
+
         // Load scheduled exams
         scheduledExams = teacherExams
             .filter(exam => exam.scheduledStart)
@@ -517,10 +518,10 @@ function initializeSampleData() {
 }
 
 // Initialize teacher dashboard when the page loads
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Load any existing exams from localStorage
     loadExams();
-    
+
     // Initialize the dashboard
     loadDashboardData();
     loadRecentExams();
@@ -529,10 +530,10 @@ document.addEventListener('DOMContentLoaded', function() {
     loadAttendanceExams();
     loadAttendance();
     setupTTSControls();
-    
+
     // Show dashboard by default
     showSection('dashboard');
-    
+
     console.log('Teacher dashboard initialized');
 });
 
@@ -544,7 +545,7 @@ function loadCreateExam() {
     document.getElementById('create-exam-description').value = createdExam.description;
     document.getElementById('create-exam-difficulty').value = createdExam.difficulty;
     document.getElementById('create-exam-type').value = createdExam.type;
-    
+
     // Load existing questions
     loadQuestions();
 }
@@ -552,7 +553,7 @@ function loadCreateExam() {
 function addQuestion() {
     questionCounter++;
     const questionId = `question_${questionCounter}`;
-    
+
     const questionHTML = `
         <div class="question-item" id="${questionId}">
             <div class="question-header">
@@ -596,9 +597,9 @@ function addQuestion() {
             </div>
         </div>
     `;
-    
+
     document.getElementById('questions-list').insertAdjacentHTML('beforeend', questionHTML);
-    
+
     // Add to created exam
     createdExam.questions.push({
         id: questionId,
@@ -612,10 +613,10 @@ function deleteQuestion(questionId) {
     const questionElement = document.getElementById(questionId);
     if (questionElement) {
         questionElement.remove();
-        
+
         // Remove from created exam
         createdExam.questions = createdExam.questions.filter(q => q.id !== questionId);
-        
+
         // Update question numbers
         updateQuestionNumbers();
     }
@@ -649,10 +650,10 @@ function updateQuestion(questionId, field, value) {
 function loadQuestions() {
     const questionsList = document.getElementById('questions-list');
     questionsList.innerHTML = '';
-    
+
     createdExam.questions.forEach((question, index) => {
         questionCounter = Math.max(questionCounter, index + 1);
-        
+
         const questionHTML = `
             <div class="question-item" id="${question.id}">
                 <div class="question-header">
@@ -696,7 +697,7 @@ function loadQuestions() {
                 </div>
             </div>
         `;
-        
+
         questionsList.insertAdjacentHTML('beforeend', questionHTML);
     });
 }
@@ -708,18 +709,18 @@ function saveCreatedExam() {
     createdExam.description = document.getElementById('create-exam-description').value;
     createdExam.difficulty = document.getElementById('create-exam-difficulty').value;
     createdExam.type = document.getElementById('create-exam-type').value;
-    
+
     // Validate
     if (!createdExam.name.trim()) {
         alert('Please enter an exam name.');
         return;
     }
-    
+
     if (createdExam.questions.length === 0) {
         alert('Please add at least one question.');
         return;
     }
-    
+
     // Validate questions
     for (let i = 0; i < createdExam.questions.length; i++) {
         const question = createdExam.questions[i];
@@ -734,7 +735,7 @@ function saveCreatedExam() {
             question.options = [];
         }
     }
-    
+
     // Create new exam object
     const newExam = {
         id: 'EXAM' + Date.now(),
@@ -756,20 +757,20 @@ function saveCreatedExam() {
         scheduledStart: null,
         scheduledEnd: null
     };
-    
+
     // Save to storage using exam-connector
     if (saveExamToStorage(newExam)) {
         alert('Exam created and saved successfully! It will now appear in the student panel.');
-        
+
         // Add to local exams array
         exams.push(newExam);
-        
+
         // Update exam select dropdowns
         updateExamSelects();
-        
+
         // Clear the form
         clearExam();
-        
+
         // Switch to dashboard to see the new exam
         showSection('dashboard');
         loadDashboardData();
@@ -785,12 +786,12 @@ function previewCreatedExam() {
     createdExam.description = document.getElementById('create-exam-description').value;
     createdExam.difficulty = document.getElementById('create-exam-difficulty').value;
     createdExam.type = document.getElementById('create-exam-type').value;
-    
+
     if (!createdExam.name.trim()) {
         alert('Please enter an exam name to preview.');
         return;
     }
-    
+
     // Create preview content
     let previewContent = `
         <h2>${createdExam.name}</h2>
@@ -801,7 +802,7 @@ function previewCreatedExam() {
         <hr>
         <h3>Questions (${createdExam.questions.length})</h3>
     `;
-    
+
     createdExam.questions.forEach((question, index) => {
         previewContent += `
             <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
@@ -818,7 +819,7 @@ function previewCreatedExam() {
             </div>
         `;
     });
-    
+
     // Show preview in a modal or new window
     const previewWindow = window.open('', '_blank', 'width=800,height=600');
     previewWindow.document.write(`
@@ -847,12 +848,12 @@ function clearExam() {
     document.getElementById('create-exam-description').value = '';
     document.getElementById('create-exam-difficulty').value = 'Medium';
     document.getElementById('create-exam-type').value = 'Multiple Choice';
-    
+
     // Clear questions
     document.getElementById('questions-list').innerHTML = '';
     createdExam.questions = [];
     questionCounter = 0;
-    
+
     // Reset created exam object
     createdExam = {
         name: '',
@@ -868,16 +869,16 @@ function clearExam() {
 function loadDashboardData() {
     const allExams = getAllExamsFromStorage();
     const currentUser = getUserData();
-    
+
     // Filter exams by current teacher if logged in
     const teacherExams = currentUser ? allExams.filter(e => e.teacherId === currentUser.id) : allExams;
-    
+
     // Update stats
     document.getElementById('total-exams').textContent = teacherExams.length;
     document.getElementById('active-exams').textContent = teacherExams.filter(e => e.status === 'available').length;
     document.getElementById('total-students').textContent = '150'; // Mock data
     document.getElementById('completion-rate').textContent = '85%'; // Mock data
-    
+
     loadRecentExams();
     loadUpcomingExams();
 }
@@ -886,15 +887,15 @@ function loadDashboardData() {
 function loadRecentExams() {
     const allExams = getAllExamsFromStorage();
     const recentExams = allExams.slice(-5).reverse();
-    
+
     const container = document.getElementById('recent-exams-list');
     if (!container) return;
-    
+
     if (recentExams.length === 0) {
         container.innerHTML = '<p>No exams created yet.</p>';
         return;
     }
-    
+
     container.innerHTML = recentExams.map(exam => `
         <div class="exam-item">
             <h4>${exam.name}</h4>
@@ -909,15 +910,15 @@ function loadRecentExams() {
 function loadUpcomingExams() {
     const allExams = getAllExamsFromStorage();
     const upcomingExams = allExams.filter(e => e.status === 'scheduled' || e.status === 'available');
-    
+
     const container = document.getElementById('upcoming-exams-list');
     if (!container) return;
-    
+
     if (upcomingExams.length === 0) {
         container.innerHTML = '<p>No upcoming exams.</p>';
         return;
     }
-    
+
     container.innerHTML = upcomingExams.map(exam => `
         <div class="exam-item">
             <h4>${exam.name}</h4>
@@ -932,15 +933,15 @@ function loadUpcomingExams() {
 function loadExams() {
     const allExams = getAllExamsFromStorage();
     exams = allExams;
-    
+
     const container = document.getElementById('uploads-list');
     if (!container) return;
-    
+
     if (exams.length === 0) {
         container.innerHTML = '<p>No exams uploaded yet.</p>';
         return;
     }
-    
+
     container.innerHTML = exams.map(exam => `
         <div class="upload-item">
             <div class="upload-info">
@@ -963,14 +964,14 @@ function loadExams() {
 // Update exam select dropdowns
 function updateExamSelects() {
     const allExams = getAllExamsFromStorage();
-    
+
     // Update schedule exam select
     const scheduleSelect = document.getElementById('schedule-exam-select');
     if (scheduleSelect) {
         scheduleSelect.innerHTML = '<option value="">Choose an exam to schedule</option>' +
             allExams.map(exam => `<option value="${exam.id}">${exam.name}</option>`).join('');
     }
-    
+
     // Update attendance exam select
     const attendanceSelect = document.getElementById('attendance-exam-select');
     if (attendanceSelect) {
@@ -1003,18 +1004,18 @@ function getUserData() {
 function setupFileUpload() {
     const uploadArea = document.getElementById('upload-area');
     const fileInput = document.getElementById('exam-pdf');
-    
+
     if (uploadArea && fileInput) {
         // Drag and drop handlers
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadArea.style.borderColor = '#4F46E5';
         });
-        
+
         uploadArea.addEventListener('dragleave', () => {
             uploadArea.style.borderColor = '#D1D5DB';
         });
-        
+
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadArea.style.borderColor = '#D1D5DB';
@@ -1045,17 +1046,17 @@ function uploadExam() {
     const description = document.getElementById('exam-description').value;
     const difficulty = document.getElementById('exam-difficulty').value;
     const fileInput = document.getElementById('exam-pdf');
-    
+
     if (!name || !date || !duration || !subject) {
         alert('Please fill in all required fields.');
         return;
     }
-    
+
     if (!fileInput.files[0]) {
         alert('Please select a PDF file.');
         return;
     }
-    
+
     // Parse PDF to questions then show preview before save
     const pdfFile = fileInput.files[0];
     parsePdfToQuestions(pdfFile).then((questions) => {
@@ -1128,7 +1129,7 @@ async function parsePdfToQuestions(file) {
     }
     try {
         const text = await extractTextFromPDF(file);
-        if (!text || text.replace(/\s+/g,'').length < 20) {
+        if (!text || text.replace(/\s+/g, '').length < 20) {
             throw new Error('No selectable text found. This PDF may be scanned (image-based).');
         }
         return parseQuestionsFromText(text);
@@ -1141,7 +1142,7 @@ async function parsePdfToQuestions(file) {
         if (window.Tesseract) {
             console.warn('Falling back to OCR via Tesseract.js');
             const ocrText = await ocrExtractTextFromPDF(file);
-            if (ocrText && ocrText.replace(/\s+/g,'').length >= 20) {
+            if (ocrText && ocrText.replace(/\s+/g, '').length >= 20) {
                 return parseQuestionsFromText(ocrText);
             }
         }
@@ -1149,7 +1150,7 @@ async function parsePdfToQuestions(file) {
     }
 }
 
-async function extractTextFromPDF(file){
+async function extractTextFromPDF(file) {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer, disableRange: true }).promise;
     let fullText = '';
@@ -1162,12 +1163,12 @@ async function extractTextFromPDF(file){
     return fullText;
 }
 
-function parseQuestionsFromText(text){
+function parseQuestionsFromText(text) {
     const cleaned = text
-      .replace(/\r/g,'')
-      .replace(/\t/g,' ')
-      .replace(/\u00a0/g,' ')
-      .replace(/\s{2,}/g,' ');
+        .replace(/\r/g, '')
+        .replace(/\t/g, ' ')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\s{2,}/g, ' ');
 
     const twoMarkHeaderRegex = /\b(\d+)\s*mark\b/i;
     const anchors = [...cleaned.matchAll(/(?:^|\s)(\d{1,3})\s*[\)\.\-]\s+/g)];
@@ -1179,7 +1180,7 @@ function parseQuestionsFromText(text){
 
     for (let i = 0; i < anchors.length; i++) {
         const startIdx = anchors[i].index + anchors[i][0].match(/\s*$/).index; // after leading spaces
-        const endIdx = (i < anchors.length - 1) ? anchors[i+1].index : cleaned.length;
+        const endIdx = (i < anchors.length - 1) ? anchors[i + 1].index : cleaned.length;
         let chunk = cleaned.slice(startIdx, endIdx).trim();
         if (!chunk) continue;
 

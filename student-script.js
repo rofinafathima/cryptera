@@ -5,10 +5,10 @@ let answers = {};
 let timerInterval = null;
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize sample data
     // initializeSampleData(); // Commented out - not needed
-    
+
     // Check if user is logged in
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     if (!currentUser || currentUser.role !== 'student') {
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize UI
     document.getElementById('student-name').textContent = currentUser.name;
-    
+
     // Load data and set up event listeners
     loadAvailableExams();
     loadSubmissions();
@@ -37,7 +37,7 @@ function setupEventListeners() {
     document.getElementById('cancelSubmitBtn')?.addEventListener('click', () => {
         document.getElementById('submitConfirmModal').style.display = 'none';
     });
-    
+
     // Close modal when clicking outside
     window.addEventListener('click', (e) => {
         const modal = document.getElementById('submissionDetailsModal');
@@ -45,7 +45,7 @@ function setupEventListeners() {
             modal.style.display = 'none';
         }
     });
-    
+
     // Close modal with escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
@@ -62,7 +62,7 @@ function loadMockExams() {
 
     // Always initialize with empty array
     window.MOCK_EXAMS = [];
-    
+
     // Show empty state since we're not loading any default exams
     mockExamList.innerHTML = `
         <div class="no-mock-exams">
@@ -132,7 +132,7 @@ function startExamTimer(seconds) {
     timerInterval = setInterval(() => {
         const mins = Math.floor(remaining / 60);
         const secs = remaining % 60;
-        timerElem.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        timerElem.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         remaining--;
         if (remaining < 0) {
             clearInterval(timerInterval);
@@ -144,6 +144,19 @@ function startExamTimer(seconds) {
 // Save answer
 function saveAnswer() {
     // Already handled in selectOption
+}
+
+// Show submit confirmation modal
+function showSubmitConfirm() {
+    const modal = document.getElementById('submitConfirmModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    } else {
+        // Fallback to native confirm if modal element is missing
+        if (confirm("Are you sure you want to submit your exam?")) {
+            submitExam();
+        }
+    }
 }
 
 // Submit exam
@@ -194,22 +207,22 @@ function showPreviousQuestion() {
 function selectLanguage(languageCode) {
     if (window.changeExamLanguage) {
         window.changeExamLanguage(languageCode);
-        
+
         // Update display
         const languageNames = {
             'en': 'English',
             'hi': 'हिन्दी',
             'ta': 'தமிழ்'
         };
-        
+
         const displayElement = document.getElementById('current-language-display');
         if (displayElement) {
             displayElement.textContent = languageNames[languageCode] || 'English';
         }
-        
+
         // Show confirmation
         alert(`Language changed to ${languageNames[languageCode]}. Voice commands will now work in this language.`);
-        
+
         // Return to dashboard
         const languageSection = document.getElementById('language-section');
         const dashboardSection = document.getElementById('dashboard-section');
@@ -224,7 +237,7 @@ function selectLanguage(languageCode) {
 function changeLanguage() {
     const dashboardSection = document.getElementById('dashboard-section');
     const languageSection = document.getElementById('language-section');
-    
+
     if (dashboardSection && languageSection) {
         dashboardSection.classList.remove('active');
         languageSection.classList.add('active');
@@ -255,7 +268,7 @@ function testMicrophone() {
 function showHelp() {
     const dashboardSection = document.getElementById('dashboard-section');
     const helpSection = document.getElementById('help-section');
-    
+
     if (dashboardSection && helpSection) {
         dashboardSection.classList.remove('active');
         helpSection.classList.add('active');
@@ -328,19 +341,19 @@ function startExam(examId) {
     // Get the exam from localStorage
     const exams = JSON.parse(localStorage.getItem('exams')) || [];
     const exam = exams.find(e => e.id === examId);
-    
+
     if (!exam) {
         alert('Exam not found. Please try again.');
         return;
     }
-    
+
     // Set current exam
     currentExam = {
         ...exam,
         isMock: false,
         startTime: new Date().toISOString()
     };
-    
+
     // Initialize answers
     answers = {};
     currentQuestionIndex = 0;
@@ -354,20 +367,20 @@ function startExam(examId) {
             startTime: new Date(),
             timeLimit: (currentExam.duration || 0) * 60
         };
-    } catch(e) { /* no-op */ }
-    
+    } catch (e) { /* no-op */ }
+
     // Show exam section
     document.getElementById('dashboard-section').classList.remove('active');
     document.getElementById('exam-section').classList.add('active');
-    
+
     // Update exam info
     document.getElementById('exam-title').textContent = exam.name;
     document.getElementById('exam-subject').textContent = exam.subject || 'General';
     document.getElementById('exam-duration').textContent = `${exam.duration} minutes`;
-    
+
     // Show first question
     showQuestion(0);
-    
+
     // Start timer
     startExamTimer(exam.duration * 60); // Convert minutes to seconds
 }
